@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-r1aNf3pBKIi+aS+dJ6v9ZJcp7viXysQTS5B/iQhNL4Ejt2kiP3zgFbOj5S+F5t3nEy6egMIyjRQfZ5xjNl/LJw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Tic Tac Toe</title>
+    <title>Tic Tac Toe | Sachin Parihar</title>
+</head>
+<body>
+    <div class="container">
+        <h1 class="headline">Tic Tac Toe</h1>
+        <div id="options" class="options">
+            <button id="twoPlayerButton">Play against a friend</button>
+            <button id="computerButton">Play against the computer</button>
+        </div>
+        <div id="board" class="board"> <!-- Remove style="display: none;" -->
+            <div class="cell" data-index="0"></div>
+            <div class="cell" data-index="1"></div>
+            <div class="cell" data-index="2"></div>
+            <div class="cell" data-index="3"></div>
+            <div class="cell" data-index="4"></div>
+            <div class="cell" data-index="5"></div>
+            <div class="cell" data-index="6"></div>
+            <div class="cell" data-index="7"></div>
+            <div class="cell" data-index="8"></div>
+        </div>
+        <p id="status" class="status"></p>
+        <button id="resetButton" class="reset-button">Reset Game</button>
+    </div>
+    <script src="script.js"></script>
+    <script src="https://kit.fontawesome.com/d9a26642d3.js" crossorigin="anonymous"></script>
+</body>
+</html>
