@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Swal.fire({
             title: 'Game Over',
             html: `${message}`,
-            icon: 'info',
+            icon: 'success',
             confirmButtonText: 'Play Again'
         }).then((result) => {
             if (result.isConfirmed) {
