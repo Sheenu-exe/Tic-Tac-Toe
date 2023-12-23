@@ -84,3 +84,40 @@ button:hover {
 .reset-button:hover {
     background-color: #c0392b;
 }
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 9999; /* Ensure confetti appears on top */
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #f00; /* Initial color, will be overridden by getRandomColor() */
+    border-radius: 50%;
+    transform-origin: 50% 50%;
+    animation: confetti-fall linear;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(0) rotateZ(0);
+    }
+    100% {
+        transform: translateY(100vh) rotateZ(720deg);
+    }
+}
+.swal2-html-container{
+    font-size: 50px;
+}
+
+
+
+.reset-button:hover {
+    background-color: #c0392b;
+}
