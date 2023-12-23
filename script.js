@@ -7,8 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = document.getElementById('status');
     const resetButton = document.getElementById('resetButton');
 
-    const playerXIcon = '<i class="fas fa-times"></i>';
-    const playerOIcon = '<i class="far fa-circle"></i>';
+    const playerXIcon = 'X';
+    const playerOIcon = 'O';
 
     let currentPlayer = 'X';
     let gameBoard = ['', '', '', '', '', '', '', '', ''];
@@ -47,24 +47,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         gameBoard[index] = currentPlayer;
-        cells[index].innerHTML = currentPlayer === 'X' ? playerXIcon : playerOIcon;
+        cells[index].textContent = currentPlayer;
 
         const winner = checkWinner();
         const draw = checkDraw();
 
         if (winner) {
-            status.innerHTML = `${winner === 'X' ? playerXIcon : playerOIcon} wins!`;
+            displayWinningMessage(winner);
             gameActive = false;
         } else if (draw) {
-            status.textContent = 'It\'s a draw!';
+            displayWinningMessage(null); // It's a draw
             gameActive = false;
         } else {
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
 
             if (isTwoPlayerMode) {
-                status.innerHTML = `${currentPlayer === 'X' ? playerXIcon : playerOIcon}'s turn`;
+                status.textContent = `${currentPlayer}'s turn`;
             } else {
-                status.innerHTML = currentPlayer === 'X' ? 'Your turn' : 'Computer\'s turn';
+                status.textContent = currentPlayer === 'X' ? 'Your turn' : 'Computer\'s turn';
 
                 if (currentPlayer === 'O') {
                     setTimeout(makeComputerMove, 500);
@@ -78,31 +78,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        let emptyCells = gameBoard.reduce((acc, cell, index) => {
-            if (cell === '') {
-                acc.push(index);
-            }
-            return acc;
-        }, []);
+        let bestScore = -Infinity;
+        let bestMove;
 
-        if (emptyCells.length === 0) {
-            return; // No empty cells left
+        for (let i = 0; i < gameBoard.length; i++) {
+            if (gameBoard[i] === '') {
+                gameBoard[i] = 'O';
+                let score = minimax(gameBoard, 0, false);
+                gameBoard[i] = '';
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = i;
+                }
+            }
         }
 
-        let randomIndex = Math.floor(Math.random() * emptyCells.length);
-        let computerMove = emptyCells[randomIndex];
-
-        gameBoard[computerMove] = 'O';
-        cells[computerMove].innerHTML = playerOIcon;
+        gameBoard[bestMove] = 'O';
+        cells[bestMove].textContent = 'O';
 
         const winner = checkWinner();
         const draw = checkDraw();
 
         if (winner) {
-            status.innerHTML = `${winner === 'X' ? playerXIcon : playerOIcon} wins!`;
+            displayWinningMessage(winner);
             gameActive = false;
         } else if (draw) {
-            status.textContent = 'It\'s a draw!';
+            displayWinningMessage(null); // It's a draw
             gameActive = false;
         } else {
             currentPlayer = 'X';
@@ -110,18 +112,118 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const minimax = (board, depth, isMaximizing) => {
+        const scores = {
+            X: -1,
+            O: 1,
+            draw: 0
+        };
+
+        const result = checkWinner();
+        if (result) {
+            return scores[result] * (depth + 1);
+        }
+
+        if (isMaximizing) {
+            let bestScore = -Infinity;
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = 'O';
+                    let score = minimax(board, depth + 1, false);
+                    board[i] = '';
+                    bestScore = Math.max(score, bestScore);
+                }
+            }
+            return bestScore;
+        } else {
+            let bestScore = Infinity;
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = 'X';
+                    let score = minimax(board, depth + 1, true);
+                    board[i] = '';
+                    bestScore = Math.min(score, bestScore);
+                }
+            }
+            return bestScore;
+        }
+    };
+
+    const displayWinningMessage = (winner) => {
+        let message;
+        if (isTwoPlayerMode) {
+            message = winner ? `${winner} Won! 🎉` : 'It\'s a Draw! 🎉';
+        } else {
+            message = winner === 'X' ? 'You Won! 🎉' : 'Computer Won! 🎉';
+        }
+
+        Swal.fire({
+            title: 'Game Over',
+            html: `${message}`,
+            icon: 'info',
+            confirmButtonText: 'Play Again'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                resetGame();
+            }
+        });
+
+        // Add confetti on winning
+        const confettiContainer = document.createElement('div');
+        confettiContainer.classList.add('confetti-container');
+        document.body.appendChild(confettiContainer);
+
+        for (let i = 0; i < 200; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.backgroundColor = getRandomColor();
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            confettiContainer.appendChild(confetti);
+        }
+
+        setTimeout(() => {
+            document.body.removeChild(confettiContainer);
+        }, 5000);
+
+        // Replace the central cell with a party popper
+        const centralCellIndex = Math.floor(cells.length / 2);
+        cells[centralCellIndex].innerHTML = '🎉';
+    };
+
+    const getRandomColor = () => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    };
+
+    const startGame = () => {
+        options.style.display = 'none';
+        board.style.display = 'grid';
+
+        status.textContent = isTwoPlayerMode ? `${currentPlayer}'s turn` : 'Your turn';
+
+        cells.forEach((cell, index) => {
+            cell.addEventListener('click', () => handleClick(index));
+        });
+    };
+
     const resetGame = () => {
-        currentPlayer = 'X';
+        if (!gameActive) {
+            gameActive = true;
+        }
         gameBoard = ['', '', '', '', '', '', '', '', ''];
-        gameActive = true;
         isTwoPlayerMode = false;
 
-        options.style.display = 'block';
+        options.style.display = 'flex';
         board.style.display = 'none';
         status.textContent = 'Choose a game mode';
 
         cells.forEach((cell) => {
-            cell.innerHTML = '';
+            cell.textContent = '';
         });
 
         twoPlayerButton.addEventListener('click', () => {
@@ -135,17 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentPlayer === 'O') {
                 setTimeout(makeComputerMove, 500);
             }
-        });
-    };
-
-    const startGame = () => {
-        options.style.display = 'none';
-        board.style.display = 'grid';
-
-        status.innerHTML = isTwoPlayerMode ? `${currentPlayer === 'X' ? playerXIcon : playerOIcon}'s turn` : 'Your turn';
-
-        cells.forEach((cell, index) => {
-            cell.addEventListener('click', () => handleClick(index));
         });
     };
 
